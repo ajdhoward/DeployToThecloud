@@ -1,25 +1,24 @@
-import { Router } from 'itty-router'
+import { Router } from "itty-router";
 
 const router = Router();
 
 // Health check endpoint
-router.get('/health', () => new Response(
+router.get("/health", () => new Response(
   JSON.stringify({
-    status: 'healthy',
-    storage: 'r2',
+    status: "healthy",
+    storage: "r2",
     agents: 4,
-    version: '1.0.1'
+    version: "1.0.1"
   }),
   {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
     status: 200
   }
 ));
 
 // Dashboard endpoint
-router.get('/', async (request, env) => {
-  const html = `
-<!DOCTYPE html>
+router.get("/", async (request, env) => {
+  const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -39,7 +38,7 @@ router.get('/', async (request, env) => {
     }
     
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--background);
       color: var(--text);
       line-height: 1.5;
@@ -333,48 +332,48 @@ router.get('/', async (request, env) => {
   
   <script>
     // Environment variables management
-    document.addEventListener('DOMContentLoaded', async function() {
-      const envList = document.getElementById('env-list');
+    document.addEventListener("DOMContentLoaded", async function() {
+      const envList = document.getElementById("env-list");
       
       try {
         // Fetch current environment variables
-        const response = await fetch('/env');
+        const response = await fetch("/env");
         const envVars = await response.json();
         
         // Create HTML for existing variables
-        let envHtml = '<div class="grid">';
+        let envHtml = "<div class=\\"grid\\">";
         
         for (const [name, value] of Object.entries(envVars)) {
-          envHtml += `
-            <div class="card env-item">
+          envHtml += \`
+            <div class=\\"card env-item\\">
               <div>
-                <div class="env-name">${name}</div>
-                <div class="env-value">${value || 'Not set'}</div>
-                ${name === 'TOGETHER_API_KEY' || name === 'SENTRY_DSN' ? 
-                  '<div class="env-secret">This is a secret value. In a real implementation, it would be stored securely.</div>' : ''}
+                <div class=\\"env-name\\">\${name}</div>
+                <div class=\\"env-value\\">\${value || "Not set"}</div>
+                \${name === "TOGETHER_API_KEY" || name === "SENTRY_DSN" ? 
+                  '<div class=\\"env-secret\\">This is a secret value. In a real implementation, it would be stored securely.</div>' : ""}
               </div>
-              <div class="env-actions">
-                <button onclick="deleteEnv('${name}')" class="delete-btn">Delete</button>
+              <div class=\\"env-actions\\">
+                <button onclick=\\"deleteEnv('\${name}')\\" class=\\"delete-btn\\">Delete</button>
               </div>
             </div>
-          `;
+          \`;
         }
         
-        envHtml += '</div>';
+        envHtml += "</div>";
         envList.innerHTML = envHtml;
         
         // Add form submission handler
-        document.getElementById('add-env-form').addEventListener('submit', async function(e) {
+        document.getElementById("add-env-form").addEventListener("submit", async function(e) {
           e.preventDefault();
           
-          const name = document.getElementById('env-name').value;
-          const value = document.getElementById('env-value').value;
+          const name = document.getElementById("env-name").value;
+          const value = document.getElementById("env-value").value;
           
           try {
-            const response = await fetch('/env', {
-              method: 'POST',
+            const response = await fetch("/env", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({ name, value })
             });
@@ -382,23 +381,23 @@ router.get('/', async (request, env) => {
             const result = await response.json();
             
             if (result.success) {
-              alert('Variable added successfully! Remember to set this in Cloudflare dashboard.');
+              alert("Variable added successfully! Remember to set this in Cloudflare dashboard.");
               // Refresh the page to show updated variables
               location.reload();
             } else {
-              alert('Error: ' + (result.error || 'Unknown error'));
+              alert("Error: " + (result.error || "Unknown error"));
             }
           } catch (error) {
-            alert('Error saving variable: ' + error.message);
+            alert("Error saving variable: " + error.message);
           }
         });
         
       } catch (error) {
-        envList.innerHTML = `
-          <div class="card" style="background-color: #fee2e2; border-left-color: #ef4444;">
-            <strong>Error loading environment variables:</strong> ${error.message}
+        envList.innerHTML = \`
+          <div class=\\"card\\" style=\\"background-color: #fee2e2; border-left-color: #ef4444;\\">
+            <strong>Error loading environment variables:</strong> \${error.message}
           </div>
-        `;
+        \`;
       }
     });
 
@@ -410,95 +409,94 @@ router.get('/', async (request, env) => {
       
       try {
         const response = await fetch(\`/env/\${name}\`, {
-          method: 'DELETE'
+          method: "DELETE"
         });
         
         const result = await response.json();
         
         if (result.success) {
-          alert('Variable deleted successfully! Remember to remove this from Cloudflare dashboard.');
+          alert("Variable deleted successfully! Remember to remove this from Cloudflare dashboard.");
           location.reload();
         } else {
-          alert('Error: ' + (result.error || 'Unknown error'));
+          alert("Error: " + (result.error || "Unknown error"));
         }
       } catch (error) {
-        alert('Error deleting variable: ' + error.message);
+        alert("Error deleting variable: " + error.message);
       }
     }
   </script>
 </body>
-</html>
-  `;
+</html>';
   
   return new Response(html, {
-    headers: { 'Content-Type': 'text/html' },
+    headers: { "Content-Type": "text/html" },
     status: 200
   });
 });
 
 // Environment variables endpoints
-router.get('/env', async (request, env) => {
+router.get("/env", async (request, env) => {
   // Return all environment variables (with values masked for security)
   const envVars = {
-    TOGETHER_API_KEY: env.TOGETHER_API_KEY ? '••••••••' : 'Not set',
-    SENTRY_DSN: env.SENTRY_DSN ? '••••••••' : 'Not set'
+    TOGETHER_API_KEY: env.TOGETHER_API_KEY ? "••••••••" : "Not set",
+    SENTRY_DSN: env.SENTRY_DSN ? "••••••••" : "Not set"
   };
   
   return new Response(JSON.stringify(envVars), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" }
   });
 });
 
-router.post('/env', async (request, env) => {
+router.post("/env", async (request, env) => {
   // In this implementation, we're just showing the UI
   // Actual environment variables must be set in Cloudflare dashboard
   return new Response(
     JSON.stringify({ 
       success: true, 
-      message: 'Variable would be saved (set in Cloudflare dashboard)' 
+      message: "Variable would be saved (set in Cloudflare dashboard)" 
     }),
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { "Content-Type": "application/json" } }
   );
 });
 
-router.delete('/env/:name', async (request, env) => {
+router.delete("/env/:name", async (request, env) => {
   // In this implementation, we're just showing the UI
   // Actual environment variables must be set in Cloudflare dashboard
   return new Response(
     JSON.stringify({ 
       success: true, 
-      message: 'Variable would be deleted (remove from Cloudflare dashboard)' 
+      message: "Variable would be deleted (remove from Cloudflare dashboard)" 
     }),
-    { headers: { 'Content-Type': 'application/json' } }
+    { headers: { "Content-Type": "application/json" } }
   );
 });
 
 // Storage endpoints
-router.all('/storage/*', async (request, env) => {
+router.all("/storage/*", async (request, env) => {
   const url = new URL(request.url);
-  const path = url.pathname.replace('/storage', '');
+  const path = url.pathname.replace("/storage", "");
   
   try {
     switch (request.method) {
-      case 'GET':
-        if (path === '/') {
+      case "GET":
+        if (path === "/") {
           return listObjects(request, env, path);
         }
         return getObject(request, env, path);
       
-      case 'PUT':
+      case "PUT":
         return putObject(request, env, path);
       
-      case 'DELETE':
+      case "DELETE":
         return deleteObject(request, env, path);
       
       default:
-        return new Response('Method Not Allowed', { status: 405 });
+        return new Response("Method Not Allowed", { status: 405 });
     }
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" }
     });
   }
 });
@@ -506,19 +504,19 @@ router.all('/storage/*', async (request, env) => {
 async function listObjects(request, env, prefix) {
   const list = await env.STORAGE_BUCKET.list({ prefix });
   return new Response(JSON.stringify(list), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" }
   });
 }
 
 async function getObject(request, env, key) {
   const object = await env.STORAGE_BUCKET.get(key);
   if (!object) {
-    return new Response('Not Found', { status: 404 });
+    return new Response("Not Found", { status: 404 });
   }
   
   const headers = new Headers();
   object.writeHttpMetadata(headers);
-  headers.set('etag', object.httpEtag);
+  headers.set("etag", object.httpEtag);
   
   return new Response(object.body, { headers });
 }
@@ -530,7 +528,7 @@ async function putObject(request, env, key) {
     version: object.version,
     etag: object.httpEtag
   }), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
     status: 201
   });
 }
