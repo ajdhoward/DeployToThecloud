@@ -1,0 +1,16 @@
+{
+  "name": "DeployToThecloud",
+  "version": "1.0.1",
+  "description": "AI LifeOS implementation",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.27.0"
+  },
+  "dependencies": {
+    "itty-router": "^2.7.1"
+  }
+}
