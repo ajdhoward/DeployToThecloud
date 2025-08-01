@@ -11,6 +11,6 @@
     "wrangler": "^4.27.0"
   },
   "dependencies": {
-    "itty-router": "github:dev-xo/itty-router#v2.7.0"
+    "itty-router": "https://github.com/dev-xo/itty-router.git#v2.7.0"
   }
 }
